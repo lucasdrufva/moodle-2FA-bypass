@@ -185,6 +185,9 @@ export class CoreOpener {
     static async openInBrowser(url: string, options: CoreOpenerOpenInBrowserOptions = {}): Promise<void> {
         // eslint-disable-next-line deprecation/deprecation
         const originaUrl = CoreUrl.unfixPluginfileURL(options.originalUrl ?? options.browserWarningUrl ?? url);
+
+        console.log("openinBrowser")
+
         if (options.showBrowserWarning || options.showBrowserWarning === undefined) {
             try {
                 await CoreOpener.confirmOpenBrowserIfNeeded(originaUrl);
@@ -196,11 +199,13 @@ export class CoreOpener {
 
         const site = CoreSites.getCurrentSite();
         CoreAnalytics.logEvent({ type: CoreAnalyticsEventType.OPEN_LINK, link: originaUrl });
+        console.log("now open using")
+        console.log(window.open);
         window.open(
             site?.containsUrl(url)
                 ? CoreUrl.addParamsToUrl(url, { lang: await CoreLang.getCurrentLanguage(CoreLangFormat.LMS) })
                 : url,
-            '_system',
+            'new_window', 'width=800,height=600,scrollbars=yes,resizable=yes',
         );
     }
 

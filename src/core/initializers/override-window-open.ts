@@ -25,5 +25,5 @@ export default async function initializeApp(): Promise<void> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (<any> window).open = window.cordova.InAppBrowser.open;
+    // (<any> window).open = window.cordova.InAppBrowser.open;
 }

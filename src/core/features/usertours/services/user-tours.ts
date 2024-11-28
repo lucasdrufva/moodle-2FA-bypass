@@ -164,47 +164,47 @@ export class CoreUserToursService {
      * @returns User tour controller.
      */
     protected startTour(tour: CoreUserToursUserTourComponent, watchElement?: HTMLElement | false): CoreUserToursUserTour {
-        if (!watchElement) {
-            this.activateTour(tour);
+        // if (!watchElement) {
+        //     this.activateTour(tour);
 
-            return {
-                cancel: () => tour.dismiss(false),
-            };
-        }
+        //     return {
+        //         cancel: () => tour.dismiss(false),
+        //     };
+        // }
 
-        let unsubscribeVisible: (() => void) | undefined;
-        let visiblePromise: CoreCancellablePromise | undefined = CoreDom.waitToBeInViewport(watchElement);
+        // let unsubscribeVisible: (() => void) | undefined;
+        // let visiblePromise: CoreCancellablePromise | undefined = CoreDom.waitToBeInViewport(watchElement);
 
-        // eslint-disable-next-line promise/catch-or-return, promise/always-return
-        visiblePromise.then(() => {
-            visiblePromise = undefined;
+        // // eslint-disable-next-line promise/catch-or-return, promise/always-return
+        // visiblePromise.then(() => {
+        //     visiblePromise = undefined;
 
-            this.activateTour(tour);
+        //     this.activateTour(tour);
 
-            unsubscribeVisible = CoreDom.watchElementInViewport(
-                watchElement,
-                visible => visible ? this.activateTour(tour) : this.deactivateTour(tour),
-            );
+        //     unsubscribeVisible = CoreDom.watchElementInViewport(
+        //         watchElement,
+        //         visible => visible ? this.activateTour(tour) : this.deactivateTour(tour),
+        //     );
 
-            CoreSubscriptions.once(tour.beforeDismiss, () => {
-                unsubscribeVisible?.();
+        //     CoreSubscriptions.once(tour.beforeDismiss, () => {
+        //         unsubscribeVisible?.();
 
-                visiblePromise = undefined;
-                unsubscribeVisible = undefined;
-            });
-        });
+        //         visiblePromise = undefined;
+        //         unsubscribeVisible = undefined;
+        //     });
+        // });
 
         return {
             cancel: async () => {
-                visiblePromise?.cancel();
+                // visiblePromise?.cancel();
 
-                if (!unsubscribeVisible) {
-                    return;
-                }
+                // if (!unsubscribeVisible) {
+                //     return;
+                // }
 
-                unsubscribeVisible();
+                // unsubscribeVisible();
 
-                await tour.dismiss(false);
+                // await tour.dismiss(false);
             },
         };
     }

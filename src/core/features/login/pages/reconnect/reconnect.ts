@@ -273,6 +273,7 @@ export class CoreLoginReconnectPage implements OnInit, OnDestroy {
                 params: this.redirectData,
             });
         } catch (error) {
+            console.log("reconnect")
             CoreLoginHelper.treatUserTokenError(this.site.getURL(), error, this.username, password);
 
             if (error.loggedout) {

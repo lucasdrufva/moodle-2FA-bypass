@@ -1126,26 +1126,30 @@ export class CoreLoginHelperProvider {
     treatUserTokenError(siteUrl: string, error: CoreError, username?: string, password?: string): void {
         const errorCode = 'errorcode' in error ? error.errorcode : null;
 
-        switch (errorCode) {
-            case 'forcepasswordchangenotice':
-                this.openChangePassword(siteUrl, CoreErrorHelper.getErrorMessageFromError(error) ?? '');
-                break;
-            case 'usernotconfirmed':
-                this.showNotConfirmedModal(siteUrl, undefined, username, password);
-                break;
-            case 'connecttomoodleapp':
-                this.showMoodleAppNoticeModal(CoreErrorHelper.getErrorMessageFromError(error) ?? '');
-                break;
-            case 'connecttoworkplaceapp':
-                this.showWorkplaceNoticeModal(CoreErrorHelper.getErrorMessageFromError(error) ?? '');
-                break;
-            case 'invalidlogin':
-                this.showInvalidLoginModal(error);
-                break;
-            default:
-                CoreDomUtils.showErrorModal(error);
-                break;
-        }
+        //const errorCode = '';
+
+        console.log(error);
+
+        // switch (errorCode) {
+        //     case 'forcepasswordchangenotice':
+        //         this.openChangePassword(siteUrl, CoreErrorHelper.getErrorMessageFromError(error) ?? '');
+        //         break;
+        //     case 'usernotconfirmed':
+        //         this.showNotConfirmedModal(siteUrl, undefined, username, password);
+        //         break;
+        //     case 'connecttomoodleapp':
+        //         this.showMoodleAppNoticeModal(CoreErrorHelper.getErrorMessageFromError(error) ?? '');
+        //         break;
+        //     case 'connecttoworkplaceapp':
+        //         this.showWorkplaceNoticeModal(CoreErrorHelper.getErrorMessageFromError(error) ?? '');
+        //         break;
+        //     case 'invalidlogin':
+        //         this.showInvalidLoginModal(error);
+        //         break;
+        //     default:
+        //         CoreDomUtils.showErrorModal(error);
+        //         break;
+        // }
     }
 
     /**

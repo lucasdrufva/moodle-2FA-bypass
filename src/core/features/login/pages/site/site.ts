@@ -84,6 +84,50 @@ export class CoreLoginSitePage implements OnInit {
      * @inheritdoc
      */
     async ngOnInit(): Promise<void> {
+        //await CoreSites.restoreSession();
+        this.login({
+            "siteUrl": "https://lms.mil.se",
+            "code": 1,
+            "service": "moodle_mobile_app",
+            "config": {
+                "wwwroot": "https://lms.mil.se",
+                "httpswwwroot": "https://lms.mil.se",
+                "sitename": "Försvarsmaktens LMS Extern",
+                "guestlogin": 0,
+                "rememberusername": 2,
+                "authloginviaemail": 1,
+                "registerauth": "",
+                "forgottenpasswordurl": "",
+                "authinstructions": "<p class=\"MsoNormal\">Detta system tillhör Försvarsmakten. För att få tillgång till detta system krävs tillstånd från Försvarsmakten.</p><p class=\"MsoNormal\">Den som olovligen bereder sig tillträde till detta system kan komma att straffas för dataintrång enligt 4 kap 9 c § brottsbalken.</p><p class=\"MsoNormal\">Ditt agerande i systemet kan komma att loggas.</p><p> </p>",
+                "authnoneenabled": 0,
+                "enablewebservices": 1,
+                "enablemobilewebservice": 1,
+                "maintenanceenabled": 0,
+                "maintenancemessage": "<p dir=\"ltr\" style=\"text-align:left;\">Sidan håller på att uppdateras och beräknas vara tillgänglig fredag den 23:e februari. </p>",
+                "logourl": "https://lms.mil.se/pluginfile.php/1/theme_boost_union/logo/0x200/1732108927/FM_v%C3%A4nster_svv.png",
+                "compactlogourl": "https://lms.mil.se/pluginfile.php/1/theme_boost_union/logocompact/300x300/1732108927/FM_v%C3%A4nster_svv.png",
+                "typeoflogin": 1,
+                "launchurl": "https://lms.mil.se/admin/tool/mobile/launch.php",
+                "mobilecssurl": "",
+                "tool_mobile_disabledfeatures": "NoDelegate_ForgottenPassword",
+                "country": "SE",
+                "agedigitalconsentverification": false,
+                "supportpage": "",
+                "supportavailability": 1,
+                "autolang": 1,
+                "lang": "sv_wp",
+                "langmenu": 1,
+                "langlist": "en|English,sv_wp|Svenska",
+                "locale": "",
+                "tool_mobile_minimumversion": "",
+                "tool_mobile_iosappid": "633359593",
+                "tool_mobile_androidappid": "com.moodle.moodlemobile",
+                "tool_mobile_setuplink": "https://download.moodle.org/mobile",
+                "tool_mobile_qrcodetype": 0,
+                "warnings": []
+            }
+        })
+
         let url = '';
         this.siteSelector = CoreConstants.CONFIG.multisitesdisplay;
 
@@ -354,6 +398,9 @@ export class CoreLoginSitePage implements OnInit {
                 }
             }
 
+            console.log("Check done:");
+            console.log(checkResult)
+
             await this.login(checkResult);
 
             modal.dismiss();
@@ -380,6 +427,7 @@ export class CoreLoginSitePage implements OnInit {
 
             return;
         } catch (error) {
+            console.log("site.ts")
             CoreLoginHelper.treatUserTokenError(siteData.url, error, siteData.username, siteData.password);
 
             if (error.loggedout) {

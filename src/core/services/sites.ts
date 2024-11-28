@@ -527,6 +527,9 @@ export class CoreSitesProvider {
             });
         }
 
+        console.log("usertoken:");
+        console.log(data);
+
         if (data === undefined) {
             throw this.createCannotConnectLoginError(siteUrl, {
                 debug: {
@@ -603,6 +606,8 @@ export class CoreSitesProvider {
         try {
             const info = await authSite.fetchSiteInfo();
 
+            console.log("fetchINfo")
+
             const result = this.isValidMoodleVersion(info);
             if (result !== CoreSitesProvider.VALID_VERSION) {
                 return this.treatInvalidAppVersion(result);
@@ -645,13 +650,20 @@ export class CoreSitesProvider {
                 }
             }
 
+            console.log("setConfig")
+
             if (config !== undefined) {
                 site.setConfig(config);
             }
 
+            console.log("cenfig is set");
+
+
             // Add site to sites list.
             await this.addSite(siteId, siteUrl, token, info, privateToken, config, oauthId);
             this.sites[siteId] = site;
+
+            console.log("addSIte")
 
             if (login) {
                 this.currentSite = site;
@@ -996,6 +1008,7 @@ export class CoreSitesProvider {
     async loadSite(siteId: string, redirectData?: CoreRedirectPayload): Promise<boolean> {
         this.logger.debug(`Load site ${siteId}`);
 
+        console.log("loadsite:getSite");
         const site = await this.getSite(siteId);
 
         const siteUrlAllowed = await CoreLoginHelper.isSiteUrlAllowed(site.getURL(), false);
@@ -1005,12 +1018,17 @@ export class CoreSitesProvider {
 
         this.currentSite = site;
 
+        console.log("loadsite:1020");
+
         if (site.isLoggedOut()) {
+            console.log("isLoggedOut");
             // Logged out, trigger session expired event and stop.
             CoreEvents.trigger(CoreEvents.SESSION_EXPIRED, redirectData || {}, site.getId());
 
             return false;
         }
+
+        console.log("loadsite:login");
 
         this.login(siteId);
         // Get some data in background, don't block the UI.
@@ -1154,26 +1172,37 @@ export class CoreSitesProvider {
      * @returns Promise resolved with the site.
      */
     async getSite(siteId?: string): Promise<CoreSite> {
+        console.log("Getsite")
+        console.log(siteId);
         if (!siteId) {
             if (this.currentSite) {
+                console.log("1173")
                 return this.currentSite;
             }
 
+            console.log("1177");
+
             throw new CoreError('No current site found.');
         }
+        console.log("1181");
 
         if (this.currentSite && this.currentSite.getId() === siteId) {
+            console.log("1184")
             return this.currentSite;
         }
 
+        console.log("1188")
+
         if (this.sites[siteId] !== undefined) {
+            console.log("1191")
             return this.sites[siteId];
         }
 
+        console.log("Get:loadSiteid")
         // Retrieve and create the site.
         let record: SiteDBEntry;
         try {
-            record = await this.loadSiteTokens(await this.sitesTable.getOneByPrimaryKey({ id: siteId }));
+            record = await this.loadSiteTokens(null);
         } catch {
             throw new CoreError('SiteId not found.');
         }
@@ -1210,6 +1239,7 @@ export class CoreSitesProvider {
      * @returns Promise resolved with the site.
      */
     async getSiteByUrl(siteUrl: string): Promise<CoreSite> {
+        console.log("getSiteByUrl")
         const data = await this.loadSiteTokens(await this.sitesTable.getOne({ siteUrl }));
 
         return this.addSiteFromSiteListEntry(data);
@@ -1234,14 +1264,22 @@ export class CoreSitesProvider {
      * @returns Promised resolved with the created site.
      */
     async addSiteFromSiteListEntry(entry: SiteDBEntry): Promise<CoreSite> {
+        console.log("adfrom")
         if (this.sites[entry.id] !== undefined) {
             return this.sites[entry.id];
         }
 
+        console.log("adfrom:1")
+
+
         // Parse info and config.
         const site = this.makeSiteFromSiteListEntry(entry);
 
+        console.log("adfrom:2")
+
         await this.migrateSiteSchemas(site);
+
+        console.log("adfrom:3")
 
         // Set site after migrating schemas, or a call to getSite could get the site while tables are being created.
         this.sites[entry.id] = site;
@@ -1256,9 +1294,12 @@ export class CoreSitesProvider {
      * @returns Site.
      */
     makeSiteFromSiteListEntry(entry: SiteDBEntry): CoreSite {
+        console.log("parse info")
         const info = entry.info ? CoreText.parseJSON<CoreSiteInfo>(entry.info) : undefined;
+        console.log("parse config")
         const config = entry.config ? CoreText.parseJSON<CoreSiteConfig>(entry.config) : undefined;
 
+        console.log("makesite")
         const site = CoreSitesFactory.makeSite(
             entry.id,
             entry.siteUrl,
@@ -1270,6 +1311,7 @@ export class CoreSitesProvider {
                 loggedOut: entry.loggedOut == 1,
             },
         );
+        console.log("setoauth")
         site.setOAuthId(entry.oauthId || undefined);
 
         return site;
@@ -1703,6 +1745,7 @@ export class CoreSitesProvider {
      * @returns Promise resolved with the site IDs (array).
      */
     async getSiteIdsFromUrl(url: string, prioritize?: boolean, username?: string): Promise<string[]> {
+        console.log("getsiteIdsFromUrl");
         // If prioritize is true, check current site first.
         if (prioritize && this.currentSite && this.currentSite.containsUrl(url)) {
             if (!username || this.currentSite?.getInfo()?.username === username) {
@@ -1757,7 +1800,8 @@ export class CoreSitesProvider {
     async getStoredCurrentSiteId(): Promise<string> {
         await this.migrateCurrentSiteLegacyTable();
 
-        return CoreConfig.get(CORE_SITE_CURRENT_SITE_ID_CONFIG);
+        //return CoreConfig.get(CORE_SITE_CURRENT_SITE_ID_CONFIG);
+        return 'lms.mil.se';
     }
 
     /**
@@ -2125,12 +2169,18 @@ export class CoreSitesProvider {
      * @param siteId Site ID.
      * @returns Stored tokens.
      */
-    protected async getTokensFromSecureStorage(siteId: string): Promise<{ token: string; privateToken?: string }> {
-        const result = await CoreNative.plugin('secureStorage')?.get(['token', 'privateToken'], siteId);
+    protected async getTokensFromSecureStorage(siteId: string | null): Promise<{ token: string; privateToken?: string }> {
+        //const result = await CoreNative.plugin('secureStorage')?.get(['token', 'privateToken'], siteId);
+
+        console.log("Get item from secure storage")
+
+        const token = localStorage.getItem('token');
+        const privateToken = localStorage.getItem('privateToken');
+
 
         return {
-            token: result?.token ?? '',
-            privateToken: result?.privateToken ?? undefined,
+            token: token ?? '',
+            privateToken: privateToken ?? undefined,
         };
     }
 
@@ -2146,10 +2196,13 @@ export class CoreSitesProvider {
         token: string,
         privateToken?: string,
     ): Promise<void> {
-        await CoreNative.plugin('secureStorage')?.store({
-            token: token,
-            privateToken: privateToken ?? '',
-        }, siteId);
+        console.log("use plugin secureStorage");
+        localStorage.setItem('token', token);
+        localStorage.setItem('privateToken', privateToken ?? '');
+        // await CoreNative.plugin('secureStorage')?.store({
+        //     token: token,
+        //     privateToken: privateToken ?? '',
+        // }, siteId);
     }
 
     /**
@@ -2158,12 +2211,21 @@ export class CoreSitesProvider {
      * @param site Site data.
      * @returns Site with tokens loaded.
      */
-    protected async loadSiteTokens(site: SiteDBEntry): Promise<SiteDBEntry> {
-        if (site.token) {
+    protected async loadSiteTokens(site: SiteDBEntry | null): Promise<SiteDBEntry> {
+
+        if (site?.token) {
             return site;
         }
 
-        const tokens = await this.getTokensFromSecureStorage(site.id);
+        const tokens = await this.getTokensFromSecureStorage('');
+
+        site = {
+            id: 'lms.mil.se',
+            siteUrl: "https://lms.mil.se",
+            token: tokens.token,
+            privateToken: tokens.privateToken ?  tokens.privateToken : '',
+            loggedOut: 0,
+        }
 
         return {
             ...site,

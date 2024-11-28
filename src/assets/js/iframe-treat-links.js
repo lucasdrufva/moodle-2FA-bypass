@@ -20,25 +20,25 @@
         return;
     }
 
-    // Redefine window.open.
-    window.open = function(url, name, specs) {
-        if (name == '_self') {
-            // Link should be loaded in the same frame.
-            location.href = toAbsolute(url);
+    // // Redefine window.open.
+    // window.open = function(url, name, specs) {
+    //     if (name == '_self') {
+    //         // Link should be loaded in the same frame.
+    //         location.href = toAbsolute(url);
 
-            return;
-        }
+    //         return;
+    //     }
 
-        getRootWindow(window).postMessage({
-            environment: 'moodleapp',
-            context: 'iframe',
-            action: 'window_open',
-            frameUrl: location.href,
-            url: url,
-            name: name,
-            specs: specs,
-        }, '*');
-    };
+    //     getRootWindow(window).postMessage({
+    //         environment: 'moodleapp',
+    //         context: 'iframe',
+    //         action: 'window_open',
+    //         frameUrl: location.href,
+    //         url: url,
+    //         name: name,
+    //         specs: specs,
+    //     }, '*');
+    // };
 
     // Handle link clicks.
     document.addEventListener('click', (documentClickEvent) => {

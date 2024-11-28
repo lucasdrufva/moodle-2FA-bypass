@@ -301,7 +301,10 @@ export class CoreLoginCredentialsPage implements OnInit, OnDestroy {
 
         // Start the authentication process.
         try {
+            console.log("getusertoken")
             const data = await CoreSites.getUserToken(siteUrl, username, password);
+
+            console.log("newsite")
 
             await CoreSites.newSite(data.siteUrl, data.token, data.privateToken);
 
@@ -309,11 +312,14 @@ export class CoreLoginCredentialsPage implements OnInit, OnDestroy {
             this.credForm.controls['username'].reset();
             this.credForm.controls['password'].reset();
 
+            console.log("nav")
+
             await CoreNavigator.navigateToSiteHome({ params: { urlToOpen: this.urlToOpen } });
         } catch (error) {
             if (error instanceof CoreSiteError && CoreLoginHelper.isAppUnsupportedError(error)) {
                 await CoreLoginHelper.showAppUnsupportedModal(siteUrl, this.site, error.debug);
             } else {
+                console.log("credent")
                 CoreLoginHelper.treatUserTokenError(siteUrl, error, username, password);
             }
 

@@ -314,6 +314,7 @@ export class CoreIframeUtilsProvider {
         if (contentWindow) {
             // Intercept window.open.
             contentWindow.open = (url: string, name: string) => {
+                console.log("WIndow open redifined");
                 this.windowOpen(url, name, element);
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

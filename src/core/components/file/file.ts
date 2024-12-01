@@ -151,6 +151,8 @@ export class CoreFileComponent implements OnInit, OnDestroy {
         ev?.preventDefault();
         ev?.stopPropagation();
 
+        console.log("openFile")
+
         if (!this.file) {
             return;
         }
@@ -183,74 +185,91 @@ export class CoreFileComponent implements OnInit, OnDestroy {
         e && e.preventDefault();
         e && e.stopPropagation();
 
-        if (!this.file || !this.siteId) {
-            return;
-        }
+        console.log("File download");
+        console.log(e);
+        console.log(this.fileUrl);
+        console.log(this.siteId);
+        console.log(this);
 
-        if (this.isDownloading && !openAfterDownload) {
-            return;
-        }
+        const token = localStorage.getItem('token');
 
-        if (!this.canDownload || !this.state || this.state === DownloadStatus.NOT_DOWNLOADABLE) {
-            // File cannot be downloaded, just open it.
-            if (CoreUrl.isLocalFileUrl(this.fileUrl)) {
-                CoreOpener.openFile(this.fileUrl);
-            } else {
-                CoreOpener.openOnlineFile(CoreUrl.unfixPluginfileURL(this.fileUrl));
-            }
+        // Construct the URL with the token as a query parameter
+        const urlWithToken = `${this.fileUrl}&token=${encodeURIComponent(token ?? '')}`;
 
-            return;
-        }
+        // Open a new tab for the download
+        window.open(urlWithToken, '_blank');
 
-        if (!CoreNetwork.isOnline() && (!openAfterDownload || (openAfterDownload &&
-                !CoreFileHelper.isStateDownloaded(this.state)))) {
-            CoreDomUtils.showErrorModal('core.networkerrormsg', true);
+        return;
 
-            return;
-        }
 
-        if (openAfterDownload) {
-            // File needs to be opened now.
-            try {
-                await this.openFile();
-            } catch (error) {
-                CoreDomUtils.showErrorModalDefault(error, 'core.errordownloading', true);
-            }
-        } else {
-            try {
-                // File doesn't need to be opened (it's a prefetch). Show confirm modal if file size is defined and it's big.
-                const size = await CorePluginFileDelegate.getFileSize(this.file, this.siteId);
+        // if (!this.file || !this.siteId) {
+        //     return;
+        // }
 
-                if (size) {
-                    await CoreDomUtils.confirmDownloadSize({ size: size, total: true });
-                }
+        // if (this.isDownloading && !openAfterDownload) {
+        //     return;
+        // }
 
-                // User confirmed, add the file to queue.
-                // @todo Is the invalidate really needed?
-                await CorePromiseUtils.ignoreErrors(CoreFilepool.invalidateFileByUrl(this.siteId, this.fileUrl));
+        // if (!this.canDownload || !this.state || this.state === DownloadStatus.NOT_DOWNLOADABLE) {
+        //     // File cannot be downloaded, just open it.
+        //     if (CoreUrl.isLocalFileUrl(this.fileUrl)) {
+        //         CoreOpener.openFile(this.fileUrl);
+        //     } else {
+        //         CoreOpener.openOnlineFile(CoreUrl.unfixPluginfileURL(this.fileUrl));
+        //     }
 
-                this.isDownloading = true;
+        //     return;
+        // }
 
-                try {
-                    await CoreFilepool.addToQueueByUrl(
-                        this.siteId,
-                        this.fileUrl,
-                        this.component,
-                        this.componentId,
-                        this.timemodified,
-                        undefined,
-                        undefined,
-                        0,
-                        this.file,
-                    );
-                } catch (error) {
-                    CoreDomUtils.showErrorModalDefault(error, 'core.errordownloading', true);
-                    this.calculateState();
-                }
-            } catch (error) {
-                CoreDomUtils.showErrorModalDefault(error, 'core.errordownloading', true);
-            }
-        }
+        // if (!CoreNetwork.isOnline() && (!openAfterDownload || (openAfterDownload &&
+        //         !CoreFileHelper.isStateDownloaded(this.state)))) {
+        //     CoreDomUtils.showErrorModal('core.networkerrormsg', true);
+
+        //     return;
+        // }
+
+        // if (openAfterDownload) {
+        //     // File needs to be opened now.
+        //     try {
+        //         await this.openFile();
+        //     } catch (error) {
+        //         CoreDomUtils.showErrorModalDefault(error, 'core.errordownloading', true);
+        //     }
+        // } else {
+        //     try {
+        //         // File doesn't need to be opened (it's a prefetch). Show confirm modal if file size is defined and it's big.
+        //         const size = await CorePluginFileDelegate.getFileSize(this.file, this.siteId);
+
+        //         // if (size) {
+        //         //     await CoreDomUtils.confirmDownloadSize({ size: size, total: true });
+        //         // }
+
+        //         // User confirmed, add the file to queue.
+        //         // @todo Is the invalidate really needed?
+        //         await CorePromiseUtils.ignoreErrors(CoreFilepool.invalidateFileByUrl(this.siteId, this.fileUrl));
+
+        //         this.isDownloading = true;
+
+        //         try {
+        //             await CoreFilepool.addToQueueByUrl(
+        //                 this.siteId,
+        //                 this.fileUrl,
+        //                 this.component,
+        //                 this.componentId,
+        //                 this.timemodified,
+        //                 undefined,
+        //                 undefined,
+        //                 0,
+        //                 this.file,
+        //             );
+        //         } catch (error) {
+        //             CoreDomUtils.showErrorModalDefault(error, 'core.errordownloading', true);
+        //             this.calculateState();
+        //         }
+        //     } catch (error) {
+        //         CoreDomUtils.showErrorModalDefault(error, 'core.errordownloading', true);
+        //     }
+        // }
     }
 
     /**

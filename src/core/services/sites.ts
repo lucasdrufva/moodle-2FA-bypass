@@ -529,6 +529,8 @@ export class CoreSitesProvider {
 
         console.log("usertoken:");
         console.log(data);
+        console.log("params");
+        console.log(params)
 
         if (data === undefined) {
             throw this.createCannotConnectLoginError(siteUrl, {
